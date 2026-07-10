@@ -5,9 +5,45 @@
   home.stateVersion = "26.05";
 
   home.packages = with pkgs; [
+    # fast core CLIs
     ripgrep
     fd
     jq
+    fzf
+    # git & friends
+    git
+    delta            # Homebrew: git-delta
+    lazygit
+    gh
+    difftastic
+    # net / http
+    curl
+    wget
+    httpie
+    hey
+    # shell / text utils
+    gum
+    shellcheck
+    gawk             # Homebrew: awk (GNU awk)
+    coreutils
+    # build
+    cmake
+    ninja
+    # editors / misc
+    neovim
+    pass
+    terraform-docs
+    ansible
+    awscli2          # Homebrew "awscli" is v2
+    htop
+    stow
+    tmux
+    # language version managers / runtimes (Nix-installed)
+    rustup
+    uv
+    fnm
+    bun
+    pnpm
   ];
 
   programs.home-manager.enable = true;
@@ -56,7 +92,7 @@
       esac
 
       # SDKMAN (invokes brew at shell init)
-      export SDKMAN_DIR=$(brew --prefix sdkman-cli)/libexec
+      export SDKMAN_DIR="$HOME/.sdkman"
       [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
 
       # worktrunk shell integration

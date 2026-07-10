@@ -41,4 +41,57 @@
   # First Phase-2 switch: home-manager takes over ~/.zshrc (stow symlink) and
   # ~/.zshenv (regular file). Back up pre-existing targets instead of aborting.
   home-manager.backupFileExtension = "hm-bak";
+
+  # ------------------------------------------------------------ nix-homebrew ----
+  # Adopt the pre-existing /opt/homebrew installation under Nix management.
+  # The flake already imports nix-homebrew.darwinModules.nix-homebrew.
+  nix-homebrew = {
+    enable = true;
+    user = user;
+    autoMigrate = true;             # adopt existing /opt/homebrew without manual uninstall;
+                                    # relinks only the tracked brew repo, keeps Cellar/Caskroom/Taps.
+    mutableTaps = true;             # keep imperative `brew tap`; leaves existing Taps/ intact.
+    enableZshIntegration = false;   # ~/.zprofile already runs `brew shellenv`; avoid a second
+                                    # one that would re-prepend /opt/homebrew ahead of Nix.
+  };
+
+  # --------------------------------------------------------------- homebrew ----
+  homebrew = {
+    enable = true;
+
+    onActivation = {
+      cleanup = "none";     # do NOT uninstall unlisted formulae/casks yet
+      autoUpdate = false;   # no `brew update` during switch
+      upgrade = false;      # don't upgrade installed formulae during switch
+    };
+
+    taps = [
+      { name = "manaflow-ai/cmux"; trusted = true; }
+      { name = "atlassian/acli"; trusted = true; }
+    ];
+
+    brews = [
+      "tfenv"
+      "docker"
+      "lima"
+      "codex"
+      "gemini-cli"
+      "googleworkspace-cli"
+      "atlassian/acli/acli"
+      "pandoc"
+      "pandoc-crossref"
+    ];
+
+    casks = [
+      "cmux"
+      "ghostty"
+      "visual-studio-code"
+      "zed"
+      "gpg-suite"
+      "rectangle"
+      "stats"
+      "session-manager-plugin"
+      "appcleaner"
+    ];
+  };
 }
