@@ -9,6 +9,32 @@
   system.primaryUser = user;
   system.stateVersion = 6;
 
+  system.defaults = {
+    finder = {
+      AppleShowAllExtensions = true;
+      ShowPathbar = true;
+      _FXShowPosixPathInTitle = true;
+      FXPreferredViewStyle = "Nlsv";
+      FXEnableExtensionChangeWarning = false;
+    };
+    dock = {
+      autohide = true;
+      show-recents = false;
+    };
+    trackpad.Clicking = true;
+    NSGlobalDomain = {
+      AppleShowAllExtensions = true;
+      KeyRepeat = 2;
+      InitialKeyRepeat = 15;
+      ApplePressAndHoldEnabled = false;
+    };
+    screencapture.location = "/Users/guillaume.taffin/Screenshots";
+    CustomUserPreferences."com.apple.desktopservices" = {
+      DSDontWriteNetworkStores = true;
+      DSDontWriteUSBStores = true;
+    };
+  };
+
   # home-manager's nixos/common.nix derives home.homeDirectory from
   # config.users.users.<name>.home, which is null on nix-darwin unless
   # declared here.
@@ -92,6 +118,7 @@
       "stats"
       "session-manager-plugin"
       "appcleaner"
+      "jetbrains-toolbox"
     ];
   };
 }

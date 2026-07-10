@@ -1,6 +1,6 @@
 { config, pkgs, user, ... }:
 let
-  repo = "${config.home.homeDirectory}/dev/projects/dotfiles";
+  repo = "${config.home.homeDirectory}/.dotfiles";
   inherit (config.lib.file) mkOutOfStoreSymlink;
 in
 {
@@ -39,7 +39,6 @@ in
     ansible
     awscli2          # Homebrew "awscli" is v2
     htop
-    stow
     tmux
     # language version managers / runtimes (Nix-installed)
     rustup
@@ -67,6 +66,8 @@ in
     ".config/cmux/git".source       = mkOutOfStoreSymlink "${repo}/cmux/git";
 
     ".config/git/allowed_signers".source = mkOutOfStoreSymlink "${repo}/git/allowed_signers";
+
+    "Screenshots/.keep".text = "";
   };
 
   programs.git = {
