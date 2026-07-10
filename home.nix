@@ -1,4 +1,8 @@
 { config, pkgs, user, ... }:
+let
+  repo = "${config.home.homeDirectory}/dev/projects/dotfiles";
+  inherit (config.lib.file) mkOutOfStoreSymlink;
+in
 {
   home.username = user;
   home.homeDirectory = "/Users/${user}";
@@ -11,7 +15,6 @@
     jq
     fzf
     # git & friends
-    git
     delta            # Homebrew: git-delta
     lazygit
     gh
@@ -47,6 +50,52 @@
   ];
 
   programs.home-manager.enable = true;
+
+  # ---- Phase 4: edit-in-place symlinks back into the dotfiles repo ----
+  home.file = {
+    ".ideavimrc".source = mkOutOfStoreSymlink "${repo}/ideavimrc";
+
+    ".claude/settings.json".source          = mkOutOfStoreSymlink "${repo}/claude/settings.json";
+    ".claude/CLAUDE.md".source              = mkOutOfStoreSymlink "${repo}/claude/CLAUDE.md";
+    ".claude/statusline-command.sh".source  = mkOutOfStoreSymlink "${repo}/claude/statusline-command.sh";
+    ".claude/hooks".source                  = mkOutOfStoreSymlink "${repo}/claude/hooks";
+    ".claude/skills/dust".source            = mkOutOfStoreSymlink "${repo}/claude/skills/dust";
+    ".claude/skills/setup-worktrunk".source = mkOutOfStoreSymlink "${repo}/claude/skills/setup-worktrunk";
+
+    ".config/cmux/cmux.json".source = mkOutOfStoreSymlink "${repo}/cmux/cmux.json";
+    ".config/cmux/bin".source       = mkOutOfStoreSymlink "${repo}/cmux/bin";
+    ".config/cmux/git".source       = mkOutOfStoreSymlink "${repo}/cmux/git";
+
+    ".config/git/allowed_signers".source = mkOutOfStoreSymlink "${repo}/git/allowed_signers";
+  };
+
+  programs.git = {
+    enable = true;
+
+    signing = {
+      format = "ssh";
+      key = "key::ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL9GnREAGTw8JMmTrGjM975t9eQOtqnUJmvMi5qBk0Ak guillaume.taffin@akur8.com";
+      signByDefault = true;
+    };
+
+    settings = {
+      user.name = "Guillaume Taffin";
+      user.email = "guillaume.taffin@akur8.com";
+      init.defaultBranch = "main";
+      core.autocrlf = "input";
+      rerere.enabled = true;
+      credential.helper = "osxkeychain";
+      tag.gpgSign = true;
+      gpg.ssh.allowedSignersFile = "${config.home.homeDirectory}/.config/git/allowed_signers";
+      url."git@github.com:".insteadOf = "https://github.com/";
+      safe.directory = [
+        "/Users/guillaume.taffin/dev/projects/work-projections"
+        "/Users/guillaume.taffin/dev/projects/ai-transformation.plain-sandcastle-review-pipeline"
+        "/Users/guillaume.taffin/dev/projects/ai-transformation.triage-workflow"
+      ];
+      include.path = "${config.home.homeDirectory}/.config/cmux/git/git-experience.gitconfig";
+    };
+  };
 
   # ---------------------------------------------------------------- shell ----
   programs.zsh = {

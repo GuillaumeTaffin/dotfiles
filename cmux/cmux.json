@@ -1,0 +1,39 @@
+{
+  "$schema": "https://raw.githubusercontent.com/manaflow-ai/cmux/main/web/data/cmux.schema.json",
+  "schemaVersion": 1,
+  "actions": {
+    "new-in-group": {
+      "type": "command",
+      "title": "New Workspace In Group",
+      "subtitle": "prompt title, prefix with group name",
+      "command": "\"$HOME/.config/cmux/bin/new-in-group.sh\"",
+      "palette": true
+    },
+    "git-commit": {
+      "type": "command",
+      "title": "git commit",
+      "subtitle": "wt step commit (auto-close on success)",
+      "command": "\"$HOME/.config/cmux/bin/git-commit.sh\" && cmux close-surface --surface \"$CMUX_SURFACE_ID\"",
+      "palette": true
+    },
+    "git-push": {
+      "type": "command",
+      "title": "git push",
+      "subtitle": "git push (auto-close on success)",
+      "command": "\"$HOME/.config/cmux/bin/git-push.sh\" && cmux close-surface --surface \"$CMUX_SURFACE_ID\"",
+      "palette": true
+    },
+    "git-status": {
+      "type": "command",
+      "title": "git status",
+      "subtitle": "git status (stays open)",
+      "command": "\"$HOME/.config/cmux/bin/git-status.sh\"",
+      "palette": true
+    }
+  },
+  "ui": {
+    "newWorkspace": {
+      "action": "new-in-group"
+    }
+  }
+}
