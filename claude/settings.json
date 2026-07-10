@@ -1,0 +1,70 @@
+{
+  "env": {
+    "ENABLE_CLAUDEAI_MCP_SERVERS": "true",
+    "CLAUDE_CODE_DISABLE_1M_CONTEXT": "1",
+    "SLASH_COMMAND_TOOL_CHAR_BUDGET": "100000"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(gh pr:*)",
+      "Bash(gh api:*)",
+      "Bash(bun /Users/guillaume.taffin/dev/projects/myboard/plugins/myboard/scripts/sse-listener.ts *)",
+      "mcp__plugin_myboard_myboard",
+      "Bash(awk *)",
+      "Bash(fd *)",
+      "Bash(rg *)"
+    ],
+    "defaultMode": "auto"
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/cmux-notify.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$HOME/.claude/hooks/cmux-notify.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash /Users/guillaume.taffin/.claude/statusline-command.sh"
+  },
+  "enabledPlugins": {
+    "frontend-design@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "chrome-devtools-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "ChromeDevTools/chrome-devtools-mcp"
+      }
+    },
+    "ak8-marketplace": {
+      "source": {
+        "source": "git",
+        "url": "git@github.com:akur8-tech/ai-transformation.git"
+      }
+    }
+  },
+  "effortLevel": "xhigh",
+  "awaySummaryEnabled": false,
+  "tui": "fullscreen",
+  "autoMemoryEnabled": false,
+  "skipDangerousModePermissionPrompt": true,
+  "theme": "dark"
+}
