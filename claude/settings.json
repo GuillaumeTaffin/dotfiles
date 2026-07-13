@@ -62,6 +62,7 @@
     }
   },
   "effortLevel": "xhigh",
+  "autoCompactWindow": 160000,
   "awaySummaryEnabled": false,
   "tui": "fullscreen",
   "autoMemoryEnabled": false,
