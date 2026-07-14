@@ -45,7 +45,8 @@
   },
   "enabledPlugins": {
     "frontend-design@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true
+    "skill-creator@claude-plugins-official": true,
+    "ak8-reviews@ak8-marketplace": true
   },
   "extraKnownMarketplaces": {
     "chrome-devtools-plugins": {
@@ -61,8 +62,8 @@
       }
     }
   },
-  "effortLevel": "xhigh",
-  "autoCompactWindow": 160000,
+  "effortLevel": "high",
+  "autoCompactWindow": 190000,
   "awaySummaryEnabled": false,
   "tui": "fullscreen",
   "autoMemoryEnabled": false,

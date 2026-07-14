@@ -1,9 +1,11 @@
-{ config, pkgs, user, ... }:
+{ config, pkgs, user, inputs, ... }:
 let
   repo = "${config.home.homeDirectory}/.dotfiles";
   inherit (config.lib.file) mkOutOfStoreSymlink;
 in
 {
+  imports = [ inputs.hunk.homeManagerModules.default ];
+
   home.username = user;
   home.homeDirectory = "/Users/${user}";
   home.stateVersion = "26.05";
@@ -15,7 +17,6 @@ in
     jq
     fzf
     # git & friends
-    delta            # Homebrew: git-delta
     lazygit
     gh
     difftastic
@@ -46,6 +47,8 @@ in
     fnm
     bun
     pnpm
+    # AI coding agents
+    pi-coding-agent
   ];
 
   programs.home-manager.enable = true;
@@ -60,6 +63,10 @@ in
     ".claude/hooks".source                  = mkOutOfStoreSymlink "${repo}/claude/hooks";
     ".claude/skills/dust".source            = mkOutOfStoreSymlink "${repo}/claude/skills/dust";
     ".claude/skills/setup-worktrunk".source = mkOutOfStoreSymlink "${repo}/claude/skills/setup-worktrunk";
+
+    # pi coding agent: version settings + extensions, keep auth/sessions local
+    ".pi/agent/settings.json".source = mkOutOfStoreSymlink "${repo}/pi/settings.json";
+    ".pi/agent/extensions".source    = mkOutOfStoreSymlink "${repo}/pi/extensions";
 
     ".config/cmux/cmux.json".source = mkOutOfStoreSymlink "${repo}/cmux/cmux.json";
     ".config/cmux/bin".source       = mkOutOfStoreSymlink "${repo}/cmux/bin";
@@ -94,7 +101,25 @@ in
         "/Users/guillaume.taffin/dev/projects/ai-transformation.plain-sandcastle-review-pipeline"
         "/Users/guillaume.taffin/dev/projects/ai-transformation.triage-workflow"
       ];
-      include.path = "${config.home.homeDirectory}/.config/cmux/git/git-experience.gitconfig";
+      # diff/merge quality-of-life (formerly from the cmux git-experience include)
+      diff.colorMoved = "default";
+      merge.conflictstyle = "zdiff3";
+      # difftastic: structural/AST diff, on demand
+      difftool.prompt = false;
+      difftool.difftastic.cmd = ''difft "$LOCAL" "$REMOTE"'';
+      alias.dft = "difftool -t difftastic";
+      alias.logft = "!GIT_EXTERNAL_DIFF=difft git log -p --ext-diff";
+    };
+  };
+
+  # hunk: review-first terminal diff viewer, set as core.pager for `git diff`.
+  programs.hunk = {
+    enable = true;
+    enableGitIntegration = true;
+    settings = {
+      theme = "graphite";
+      mode = "split";
+      line_numbers = true;
     };
   };
 
