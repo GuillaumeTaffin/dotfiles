@@ -119,6 +119,7 @@
       "session-manager-plugin"
       "appcleaner"
       "jetbrains-toolbox"
+      "t3-code"
     ];
   };
 }
