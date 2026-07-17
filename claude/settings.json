@@ -16,6 +16,7 @@
     ],
     "defaultMode": "auto"
   },
+  "model": "opus",
   "hooks": {
     "Stop": [
       {
