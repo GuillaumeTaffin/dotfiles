@@ -91,6 +91,12 @@ in
       gwq = "./gradlew -q";
     };
 
+    # mise shims for non-interactive shells (scripts, agent tool calls), which
+    # never run the `mise activate` hook below.
+    envExtra = ''
+      export PATH="$HOME/.local/share/mise/shims:$PATH"
+    '';
+
     initContent = ''
       # --- environment ---
       export XDG_CONFIG_HOME="$HOME/.config"
