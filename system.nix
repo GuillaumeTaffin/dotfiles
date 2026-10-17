@@ -133,7 +133,6 @@
       "t3-code"
       "raycast"
       "slack"
-      "notion"
       "moonlight"  # game streaming client
     ];
   };
