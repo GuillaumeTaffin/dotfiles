@@ -39,7 +39,6 @@ in
     ".claude/CLAUDE.md".source              = mkOutOfStoreSymlink "${repo}/claude/CLAUDE.md";
     ".claude/statusline-command.sh".source  = mkOutOfStoreSymlink "${repo}/claude/statusline-command.sh";
     ".claude/hooks".source                  = mkOutOfStoreSymlink "${repo}/claude/hooks";
-    ".claude/skills/setup-worktrunk".source = mkOutOfStoreSymlink "${repo}/claude/skills/setup-worktrunk";
     ".claude/output-styles".source          = mkOutOfStoreSymlink "${repo}/claude/output-styles";
 
     # pi coding agent: extensions only, keep settings/auth/sessions local
