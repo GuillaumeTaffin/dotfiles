@@ -72,7 +72,7 @@
   # /etc/zshrc AFTER ~/.zprofile for a login+interactive shell, so re-asserting
   # the Nix dirs here makes Nix win. Hardcoded (not read from set-environment)
   # so this ALSO repairs nested shells that inherited
-  # __NIX_DARWIN_SET_ENVIRONMENT_DONE=1 (e.g. shells spawned inside the cmux
+  # __NIX_DARWIN_SET_ENVIRONMENT_DONE=1 (e.g. shells spawned inside a terminal
   # app), where set-environment is skipped.
   programs.zsh.interactiveShellInit = ''
     path=(
@@ -114,7 +114,6 @@
     };
 
     taps = [
-      { name = "manaflow-ai/cmux"; trusted = true; }
       { name = "rjyo/moshi"; trusted = true; }
     ];
 
@@ -127,7 +126,6 @@
     ];
 
     casks = [
-      "cmux"
       "ghostty"
       "visual-studio-code"
       "zed"

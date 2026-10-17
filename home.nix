@@ -49,8 +49,6 @@ in
     ".pi/agent/settings.json".source = mkOutOfStoreSymlink "${repo}/pi/settings.json";
     ".pi/agent/extensions".source    = mkOutOfStoreSymlink "${repo}/pi/extensions";
 
-    ".config/cmux/cmux.json".source = mkOutOfStoreSymlink "${repo}/cmux/cmux.json";
-    ".config/cmux/bin".source       = mkOutOfStoreSymlink "${repo}/cmux/bin";
 
     # global mise tools: `mise use -g` edits the repo file
     ".config/mise/config.toml".source = mkOutOfStoreSymlink "${repo}/mise/config.toml";
@@ -127,8 +125,6 @@ in
           ssh -t -o ControlPath=none -o SetEnv=LC_WCI_PWD="$PWD" lima-cc-dev
         fi
       }
-      vccx() { cmux ssh lima-cc-dev --ssh-option RequestTTY=force -- "cd $PWD && exec \$SHELL -ilc claude"; }
-      vcix() { cmux ssh lima-cc-dev --ssh-option RequestTTY=force -- "cd $PWD && exec \$SHELL -il"; }
     '';
   };
 
