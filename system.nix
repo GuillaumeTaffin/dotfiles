@@ -1,4 +1,4 @@
-{ inputs, pkgs, user, ... }:
+{ inputs, lib, pkgs, user, ... }:
 {
   nixpkgs.hostPlatform = "aarch64-darwin";
 
@@ -60,6 +60,21 @@
     enable = true;
     package = inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.tailscale;
   };
+
+  # Self-hosted Actions runner for GuillaumeTaffin/namp (release dist job,
+  # aarch64-apple-darwin). Runs as the isolated `_github-runner` user, not as
+  # me. Token: a registration token written once to tokenFile (owner 533, 600).
+  # Unstable: GitHub rejects runner versions that fall behind.
+  services.github-runners.namp = {
+    enable = true;
+    url = "https://github.com/GuillaumeTaffin/namp";
+    name = "macbookpro";
+    replace = true;
+    tokenFile = "/var/lib/github-runners/namp.token";
+    package = inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.github-runner;
+  };
+  # cargo needs the CLT toolchain (cc, ar, xcrun) from /usr/bin.
+  launchd.daemons.github-runner-namp.path = lib.mkAfter [ "/usr/bin" "/bin" "/usr/sbin" "/sbin" ];
 
   # nix-darwin manages /etc/zshrc, /etc/zprofile, /etc/zshenv.
   # (Default is already true; stated explicitly for intent.)
@@ -123,6 +138,7 @@
       "visual-studio-code"
       "zed"
       "rectangle"
+      "jetbrains-toolbox"
       "windows-app"   # Microsoft remote desktop client
       "balenaetcher"
       "raycast"
