@@ -89,7 +89,6 @@ in
     shellAliases = {
       gw = "./gradlew";
       gwq = "./gradlew -q";
-      clodo = "clear && claude --model claude-opus-4-7";
     };
 
     initContent = ''
