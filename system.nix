@@ -113,9 +113,6 @@
       cleanup = "uninstall";
     };
 
-    taps = [
-    ];
-
     brews = [
       "herdr"    # agent multiplexer, herdr.dev
       "mise"     # global CLIs (mise/config.toml) + per-project toolchains
