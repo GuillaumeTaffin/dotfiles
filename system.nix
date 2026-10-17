@@ -1,4 +1,4 @@
-{ pkgs, user, ... }:
+{ inputs, pkgs, user, ... }:
 {
   nixpkgs.hostPlatform = "aarch64-darwin";
 
@@ -52,6 +52,15 @@
   # declared here.
   users.users.${user}.home = "/Users/${user}";
 
+  # Open-source tailscaled variant (not the GUI app): required for the
+  # Tailscale SSH server, which mosh uses as its bootstrap. No macOS GUI
+  # build (App Store or standalone) can run the SSH server.
+  # Pinned to unstable: stable lags on security releases.
+  services.tailscale = {
+    enable = true;
+    package = inputs.nixpkgs-unstable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.tailscale;
+  };
+
   # nix-darwin manages /etc/zshrc, /etc/zprofile, /etc/zshenv.
   # (Default is already true; stated explicitly for intent.)
   programs.zsh.enable = true;
@@ -59,8 +68,7 @@
   # PATH-ordering fix vs Homebrew.
   #
   # /etc/zshenv -> set-environment puts the Nix profile dirs first, but the
-  # user's ~/.zprofile then prepends/appends /opt/homebrew/bin (via `brew
-  # shellenv` on the work Mac, via a plain export on the perso one). zsh sources
+  # user's ~/.zprofile then prepends/appends /opt/homebrew/bin. zsh sources
   # /etc/zshrc AFTER ~/.zprofile for a login+interactive shell, so re-asserting
   # the Nix dirs here makes Nix win. Hardcoded (not read from set-environment)
   # so this ALSO repairs nested shells that inherited
@@ -95,23 +103,28 @@
   };
 
   # --------------------------------------------------------------- homebrew ----
-  # Shared taps/brews/casks. Hosts append their own; the module system
-  # concatenates the lists.
   homebrew = {
     enable = true;
 
-    # cleanup is per host: perso is fully declarative ("uninstall"), work still
-    # has unaudited imperative installs ("none").
     onActivation = {
       autoUpdate = false;   # no `brew update` during switch
       upgrade = false;      # don't upgrade installed formulae during switch
+      # Declarative brew: anything not listed here is removed on switch.
+      cleanup = "uninstall";
     };
 
     taps = [
       { name = "manaflow-ai/cmux"; trusted = true; }
+      { name = "rjyo/moshi"; trusted = true; }
     ];
 
-    brews = [ ];
+    brews = [
+      # start_service registers the launchd agent on switch; it then auto-starts
+      # at every login without any manual `brew services start`.
+      { name = "moshi-hook"; start_service = true; restart_service = "changed"; }
+      "herdr"    # agent multiplexer, herdr.dev
+      "mise"     # global CLIs (mise/config.toml) + per-project toolchains
+    ];
 
     casks = [
       "cmux"
@@ -120,6 +133,10 @@
       "zed"
       "rectangle"
       "t3-code"
+      "raycast"
+      "slack"
+      "notion"
+      "moonlight"  # game streaming client
     ];
   };
 }

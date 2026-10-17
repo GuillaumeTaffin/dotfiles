@@ -7,62 +7,29 @@ let
   inherit (config.lib.file) mkOutOfStoreSymlink;
 in
 {
-  imports = [ inputs.hunk.homeManagerModules.default ];
-
   home.username = user;
   home.homeDirectory = "/Users/${user}";
   home.stateVersion = "26.05";
 
+  # Machine base only. Global CLIs live in mise/config.toml, toolchains per project.
   home.packages = with pkgs; [
-    # fast core CLIs
-    ripgrep
-    fd
-    jq
-    fzf
-    # git & friends
-    lazygit
-    gh
-    difftastic
-    # net / http
+    # net
     curl
     wget
-    httpie
-    hey
-    # shell / text utils
-    gum
-    shellcheck
-    gawk             # Homebrew: awk (GNU awk)
-    gnugrep          # Homebrew: grep (GNU grep)
+    mosh
+    # GNU userland (Homebrew-equivalent names: awk, grep)
+    gawk
+    gnugrep
     coreutils
-    bat
+    # shell utils
     tree
     watch
-    yq-go            # Homebrew: yq
-    just
-    ast-grep
-    # crypto (GPG commit signing on perso; gpg-suite covers the work Mac)
-    gnupg
-    pinentry_mac
-    # build
-    cmake
-    ninja
-    # editors / misc
-    neovim
-    pass
-    terraform-docs
-    ansible
-    awscli2          # Homebrew "awscli" is v2
     htop
     tmux
-    # language version managers / runtimes (Nix-installed)
-    rustup
-    uv
-    fnm
-    bun
-    pnpm
-    hermitcli       # cashapp hermit: per-project tool bins (`hermit`)
-    # AI coding agents
-    pi-coding-agent
+    # crypto (GPG commit signing) + password store
+    gnupg
+    pinentry_mac
+    pass
   ];
 
   programs.home-manager.enable = true;
@@ -86,14 +53,25 @@ in
     ".config/cmux/bin".source       = mkOutOfStoreSymlink "${repo}/cmux/bin";
     ".config/cmux/git".source       = mkOutOfStoreSymlink "${repo}/cmux/git";
 
+    # global mise tools: `mise use -g` edits the repo file
+    ".config/mise/config.toml".source = mkOutOfStoreSymlink "${repo}/mise/config.toml";
+
     "Screenshots/.keep".text = "";
   };
 
-  # Identity, signing and host-local paths live in hosts/<host>/home.nix.
   programs.git = {
     enable = true;
 
+    signing = {
+      format = "openpgp";
+      key = "A2AE5B3978A9CF52";   # Guillaume Taffin <cloudgt.dev@gmail.com>, rsa3072, expires 2027-08-17
+      signByDefault = true;
+    };
+
     settings = {
+      user.name = "Guillaume Taffin";
+      user.email = "cloudgt.dev@gmail.com";
+      tag.gpgSign = true;
       init.defaultBranch = "main";
       core.autocrlf = "input";
       rerere.enabled = true;
@@ -101,22 +79,6 @@ in
       # diff/merge quality-of-life (formerly from the cmux git-experience include)
       diff.colorMoved = "default";
       merge.conflictstyle = "zdiff3";
-      # difftastic: structural/AST diff, on demand
-      difftool.prompt = false;
-      difftool.difftastic.cmd = ''difft "$LOCAL" "$REMOTE"'';
-      alias.dft = "difftool -t difftastic";
-      alias.logft = "!GIT_EXTERNAL_DIFF=difft git log -p --ext-diff";
-    };
-  };
-
-  # hunk: review-first terminal diff viewer, set as core.pager for `git diff`.
-  programs.hunk = {
-    enable = true;
-    enableGitIntegration = true;
-    settings = {
-      theme = "graphite";
-      mode = "split";
-      line_numbers = true;
     };
   };
 
@@ -131,15 +93,8 @@ in
     shellAliases = {
       gw = "./gradlew";
       gwq = "./gradlew -q";
-      lg = "lazygit";
       clodo = "clear && claude --model claude-opus-4-7";
     };
-
-    # home-manager takes over ~/.zshenv, so re-add the cargo env the old
-    # standalone ~/.zshenv sourced (keeps ~/.cargo/bin on PATH).
-    envExtra = ''
-      [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
-    '';
 
     initContent = ''
       # --- environment ---
@@ -149,23 +104,10 @@ in
       # --- PATH additions ---
       export PATH="$PATH:$HOME/.pub-cache/bin"
       export PATH="$PATH:$HOME/.local/bin"
-      export PATH="$HOME/.bun/bin:$PATH"
       export PATH="$HOME/.opencode/bin:$PATH"
 
-      # ZIG
-      export ZIG_HOME="$HOME/dev/zig"
-      export PATH="$PATH:$ZIG_HOME"
-
-      # pnpm
-      export PNPM_HOME="$HOME/Library/pnpm"
-      case ":$PATH:" in
-        *":$PNPM_HOME/bin:"*) ;;
-        *) export PATH="$PNPM_HOME/bin:$PATH" ;;
-      esac
-
-      # SDKMAN (invokes brew at shell init)
-      export SDKMAN_DIR="$HOME/.sdkman"
-      [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
+      # mise: global CLIs + per-project toolchains (before wt, which mise installs)
+      if command -v mise >/dev/null 2>&1; then eval "$(mise activate zsh)"; fi
 
       # worktrunk shell integration
       if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
@@ -194,9 +136,4 @@ in
   programs.starship.enable = true;
 
   programs.atuin.enable = true;
-
-  programs.direnv = {
-    enable = true;
-    nix-direnv.enable = true;
-  };
 }

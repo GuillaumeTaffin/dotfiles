@@ -1,0 +1,14 @@
+[tools]
+ripgrep = "latest"
+fd = "latest"
+jq = "latest"
+yq = "latest"
+fzf = "latest"
+bat = "latest"
+just = "latest"
+gh = "latest"
+doppler = "latest"
+uv = "latest"
+node = "lts" # runtime only for npm-backed tools below, projects pin their own
+"npm:@earendil-works/pi-coding-agent" = "latest"
+worktrunk = "latest"

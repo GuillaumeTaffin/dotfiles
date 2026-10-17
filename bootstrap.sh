@@ -1,19 +1,14 @@
 #!/usr/bin/env bash
 # Fresh Apple-Silicon Mac -> built nix-darwin config. Run ONCE, from inside the
-# cloned repo:  git clone <url> && cd dotfiles && ./bootstrap.sh [host]
-# host is work|perso; omitted, it is derived from the current account name.
+# cloned repo:  git clone <url> && cd dotfiles && ./bootstrap.sh
 # Idempotent.
 set -euo pipefail
 
-# This repo's real location (wherever you cloned it). modules/common/home.nix
-# resolves its edit-in-place symlinks through the stable ~/.dotfiles-mac pointer
-# created below, so the clone can live anywhere.
+# This repo's real location (wherever you cloned it). home.nix resolves its
+# edit-in-place symlinks through the stable ~/.dotfiles-mac pointer created
+# below, so the clone can live anywhere.
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=host.sh
-. "$REPO/host.sh"
-HOST="$(resolve_host "${1:-}")"
-FLAKE="$REPO#$HOST"
-echo "==> host: $HOST"
+FLAKE="$REPO#perso"
 
 # Run unattended: accept the nixConfig that flake inputs declare, and ask for
 # the sudo password once instead of at every brew cask that writes to /Library.
@@ -124,24 +119,15 @@ done
 #    flakes yet, so pass the feature flag on THIS call only). sudo strips the
 #    nix bin dir from PATH, so resolve nix's absolute path first.
 NIX_BIN="$(command -v nix)"
-echo "==> First switch (flake attr #$HOST)"
+echo "==> First switch (flake attr #perso)"
 sudo "$NIX_BIN" --extra-experimental-features 'nix-command flakes' \
   --accept-flake-config \
   run github:nix-darwin/nix-darwin/nix-darwin-26.05#darwin-rebuild -- \
   switch --flake "$FLAKE" --option accept-flake-config true
 
-# 5. SDKMAN (replaces the retired brew formula; ~/.sdkman is what zsh sources).
-#    - needs Bash 4+: macOS ships 3.2, nix-darwin ships bash 5
-#    - SDKMAN_DIR forced: a stale env var would redirect the install
-#    - ZDOTDIR diverted: the installer appends to $ZDOTDIR/.zshrc, but ours is a
-#      read-only nix store symlink (zshrc already sources sdkman-init.sh anyway)
-if [ ! -d "$HOME/.sdkman" ]; then
-  echo "==> Installing SDKMAN"
-  ZDOT_TMP="$(mktemp -d)" && touch "$ZDOT_TMP/.zshrc"
-  curl -s "https://get.sdkman.io" \
-    | SDKMAN_DIR="$HOME/.sdkman" ZDOTDIR="$ZDOT_TMP" /run/current-system/sw/bin/bash
-  rm -rf "$ZDOT_TMP"
-fi
+# 5. Global CLIs from mise/config.toml (symlinked to ~/.config/mise by the switch).
+echo "==> Installing global mise tools"
+/opt/homebrew/bin/mise install
 
 cat <<'EOF'
 
@@ -149,6 +135,6 @@ cat <<'EOF'
 Manual, out-of-nix-scope steps:
   - JetBrains Toolbox (installed as a brew cask): sign in, enable Settings Sync.
   - IntelliJ IDEA: install via Toolbox (~/.ideavimrc is already symlinked).
-  - SDKMAN candidates: `sdk install java <ver>` etc. as needed.
+  - Per-project toolchains: `mise use <tool>@<ver>` inside the project.
 Day-to-day changes: edit configs in the repo, then ./rebuild.sh
 EOF
