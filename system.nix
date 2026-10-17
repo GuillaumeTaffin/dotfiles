@@ -114,13 +114,9 @@
     };
 
     taps = [
-      { name = "rjyo/moshi"; trusted = true; }
     ];
 
     brews = [
-      # start_service registers the launchd agent on switch; it then auto-starts
-      # at every login without any manual `brew services start`.
-      { name = "moshi-hook"; start_service = true; restart_service = "changed"; }
       "herdr"    # agent multiplexer, herdr.dev
       "mise"     # global CLIs (mise/config.toml) + per-project toolchains
     ];
