@@ -44,17 +44,8 @@
     "type": "command",
     "command": "bash \"$HOME/.claude/statusline-command.sh\""
   },
-  "enabledPlugins": {
-    "railway@railway-skills": true
-  },
-  "extraKnownMarketplaces": {
-    "railway-skills": {
-      "source": {
-        "source": "github",
-        "repo": "railwayapp/railway-skills"
-      }
-    }
-  },
+  "enabledPlugins": {},
+  "extraKnownMarketplaces": {},
   "outputStyle": "communication-style",
   "effortLevel": "high",
   "modelSettings": {
