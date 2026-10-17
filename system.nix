@@ -131,7 +131,6 @@
       "zed"
       "rectangle"
       "raycast"
-      "slack"
       "moonlight"  # game streaming client
     ];
   };
