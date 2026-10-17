@@ -9,7 +9,7 @@ One host, `perso`: account `guillaumetaffin`, `cloudgt.dev@gmail.com`, GPG commi
 
 ## Who owns what
 - nix-darwin (`system.nix`): Nix daemon, macOS defaults, zsh + PATH ordering, tailscale, Homebrew casks/brews (incl. `mise`). nix-homebrew adopts the existing `/opt/homebrew` (`cleanup = "uninstall"`: unlisted brews/casks are removed on switch).
-- home-manager (`home.nix`): dotfile symlinks, git identity + signing, zsh, starship, atuin, machine base CLIs (curl, coreutils, gnupg, tmux...).
+- home-manager (`home.nix`): dotfile symlinks, git identity + signing, zsh, starship, atuin, machine base CLIs (curl, coreutils, gnupg...).
 - mise global (`mise/config.toml`, symlinked to `~/.config/mise/config.toml`): everyday CLIs (ripgrep, fd, jq, yq, fzf, bat, just, gh, doppler, uv, pi, worktrunk). Update with `mise up`; `mise use -g` edits the repo file.
 - Per project `mise.toml`: languages and toolchains (`mise use <tool>@<ver>` in the project).
 - Native installer: claude (`~/.local/bin`).

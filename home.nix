@@ -25,7 +25,6 @@ in
     tree
     watch
     htop
-    tmux
     # crypto (GPG commit signing) + password store
     gnupg
     pinentry_mac
