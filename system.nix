@@ -130,7 +130,6 @@
       "visual-studio-code"
       "zed"
       "rectangle"
-      "t3-code"
       "raycast"
       "slack"
       "moonlight"  # game streaming client
