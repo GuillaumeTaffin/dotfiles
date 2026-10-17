@@ -51,7 +51,6 @@ in
 
     ".config/cmux/cmux.json".source = mkOutOfStoreSymlink "${repo}/cmux/cmux.json";
     ".config/cmux/bin".source       = mkOutOfStoreSymlink "${repo}/cmux/bin";
-    ".config/cmux/git".source       = mkOutOfStoreSymlink "${repo}/cmux/git";
 
     # global mise tools: `mise use -g` edits the repo file
     ".config/mise/config.toml".source = mkOutOfStoreSymlink "${repo}/mise/config.toml";
@@ -76,7 +75,7 @@ in
       core.autocrlf = "input";
       rerere.enabled = true;
       credential.helper = "osxkeychain";
-      # diff/merge quality-of-life (formerly from the cmux git-experience include)
+      # diff/merge quality-of-life
       diff.colorMoved = "default";
       merge.conflictstyle = "zdiff3";
     };

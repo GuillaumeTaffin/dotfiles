@@ -9,6 +9,5 @@ just = "latest"
 gh = "latest"
 doppler = "latest"
 uv = "latest"
-node = "lts" # runtime only for npm-backed tools below, projects pin their own
-"npm:@earendil-works/pi-coding-agent" = "latest"
+pi = "latest"
 worktrunk = "latest"
