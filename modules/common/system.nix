@@ -6,6 +6,14 @@
   nix.enable = true;
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  # Non-interactive switches: without these, every build re-asks whether to
+  # allow the extra substituters/keys that flake inputs declare in `nixConfig`.
+  # trusted-users is what actually lets those settings apply; accept-flake-config
+  # answers the prompt. Both mean inputs can add binary caches you did not vet -
+  # acceptable here because every input is pinned in flake.lock.
+  nix.settings.trusted-users = [ "root" user ];
+  nix.settings.accept-flake-config = true;
+
   system.primaryUser = user;
   system.stateVersion = 6;
 
@@ -21,14 +29,18 @@
       autohide = true;
       show-recents = false;
     };
-    trackpad.Clicking = true;
+    # Tap-to-click off: require a real click on the trackpad.
+    trackpad.Clicking = false;
     NSGlobalDomain = {
       AppleShowAllExtensions = true;
       KeyRepeat = 2;
       InitialKeyRepeat = 15;
       ApplePressAndHoldEnabled = false;
     };
-    screencapture.location = "/Users/guillaume.taffin/Screenshots";
+    screencapture.location = "/Users/${user}/Screenshots";
+    # nix-darwin's NSGlobalDomain."com.apple.mouse.tapBehavior" only accepts 1,
+    # so the "off" value goes through the raw-prefs escape hatch.
+    CustomUserPreferences.NSGlobalDomain."com.apple.mouse.tapBehavior" = 0;
     CustomUserPreferences."com.apple.desktopservices" = {
       DSDontWriteNetworkStores = true;
       DSDontWriteUSBStores = true;
@@ -47,12 +59,13 @@
   # PATH-ordering fix vs Homebrew.
   #
   # /etc/zshenv -> set-environment puts the Nix profile dirs first, but the
-  # user's ~/.zprofile then runs `eval "$(brew shellenv)"`, which prepends
-  # /opt/homebrew/bin AHEAD of them. zsh sources /etc/zshrc AFTER ~/.zprofile
-  # for a login+interactive shell, so re-asserting the Nix dirs here makes Nix
-  # win. Hardcoded (not read from set-environment) so this ALSO repairs nested
-  # shells that inherited __NIX_DARWIN_SET_ENVIRONMENT_DONE=1 (e.g. shells
-  # spawned inside the cmux app), where set-environment is skipped.
+  # user's ~/.zprofile then prepends/appends /opt/homebrew/bin (via `brew
+  # shellenv` on the work Mac, via a plain export on the perso one). zsh sources
+  # /etc/zshrc AFTER ~/.zprofile for a login+interactive shell, so re-asserting
+  # the Nix dirs here makes Nix win. Hardcoded (not read from set-environment)
+  # so this ALSO repairs nested shells that inherited
+  # __NIX_DARWIN_SET_ENVIRONMENT_DONE=1 (e.g. shells spawned inside the cmux
+  # app), where set-environment is skipped.
   programs.zsh.interactiveShellInit = ''
     path=(
       $HOME/.nix-profile/bin
@@ -64,8 +77,8 @@
     typeset -U path PATH
   '';
 
-  # First Phase-2 switch: home-manager takes over ~/.zshrc (stow symlink) and
-  # ~/.zshenv (regular file). Back up pre-existing targets instead of aborting.
+  # First switch: home-manager takes over ~/.zshrc and ~/.zshenv.
+  # Back up pre-existing targets instead of aborting.
   home-manager.backupFileExtension = "hm-bak";
 
   # ------------------------------------------------------------ nix-homebrew ----
@@ -77,48 +90,35 @@
     autoMigrate = true;             # adopt existing /opt/homebrew without manual uninstall;
                                     # relinks only the tracked brew repo, keeps Cellar/Caskroom/Taps.
     mutableTaps = true;             # keep imperative `brew tap`; leaves existing Taps/ intact.
-    enableZshIntegration = false;   # ~/.zprofile already runs `brew shellenv`; avoid a second
-                                    # one that would re-prepend /opt/homebrew ahead of Nix.
+    enableZshIntegration = false;   # ~/.zprofile already puts /opt/homebrew on PATH; avoid a
+                                    # second one that would re-prepend it ahead of Nix.
   };
 
   # --------------------------------------------------------------- homebrew ----
+  # Shared taps/brews/casks. Hosts append their own; the module system
+  # concatenates the lists.
   homebrew = {
     enable = true;
 
+    # cleanup is per host: perso is fully declarative ("uninstall"), work still
+    # has unaudited imperative installs ("none").
     onActivation = {
-      cleanup = "none";     # do NOT uninstall unlisted formulae/casks yet
       autoUpdate = false;   # no `brew update` during switch
       upgrade = false;      # don't upgrade installed formulae during switch
     };
 
     taps = [
       { name = "manaflow-ai/cmux"; trusted = true; }
-      { name = "atlassian/acli"; trusted = true; }
     ];
 
-    brews = [
-      "tfenv"
-      "docker"
-      "lima"
-      "codex"
-      "gemini-cli"
-      "googleworkspace-cli"
-      "atlassian/acli/acli"
-      "pandoc"
-      "pandoc-crossref"
-    ];
+    brews = [ ];
 
     casks = [
       "cmux"
       "ghostty"
       "visual-studio-code"
       "zed"
-      "gpg-suite"
       "rectangle"
-      "stats"
-      "session-manager-plugin"
-      "appcleaner"
-      "jetbrains-toolbox"
       "t3-code"
     ];
   };

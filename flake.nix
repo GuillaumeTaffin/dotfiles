@@ -3,6 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-26.05-darwin";
+    # Only for packages that must track upstream closely (tailscale).
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nix-darwin.url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
     home-manager.url = "github:nix-community/home-manager/release-26.05";
@@ -12,24 +14,32 @@
     hunk.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = inputs@{ self, nix-darwin, nix-homebrew, home-manager, nixpkgs, hunk }:
+  outputs = inputs@{ self, nix-darwin, nix-homebrew, home-manager, nixpkgs, hunk, ... }:
     let
-      user = "guillaume.taffin";
-    in
-    {
-      darwinConfigurations."mac" = nix-darwin.lib.darwinSystem {
-        specialArgs = { inherit user; };
+      # host = directory under ./hosts, user = macOS account name on that machine.
+      mkHost = { host, user }: nix-darwin.lib.darwinSystem {
+        specialArgs = { inherit user host inputs; };
         modules = [
-          ./configuration.nix
+          ./modules/common/system.nix
+          (./hosts + "/${host}/system.nix")
           nix-homebrew.darwinModules.nix-homebrew
           home-manager.darwinModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = { inherit user inputs; };
-            home-manager.users.${user} = import ./home.nix;
+            home-manager.extraSpecialArgs = { inherit user host inputs; };
+            home-manager.users.${user}.imports = [
+              ./modules/common/home.nix
+              (./hosts + "/${host}/home.nix")
+            ];
           }
         ];
+      };
+    in
+    {
+      darwinConfigurations = {
+        work = mkHost { host = "work"; user = "guillaume.taffin"; };
+        perso = mkHost { host = "perso"; user = "guillaumetaffin"; };
       };
     };
 }

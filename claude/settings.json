@@ -1,73 +1,73 @@
 {
   "env": {
-    "ENABLE_CLAUDEAI_MCP_SERVERS": "true",
-    "CLAUDE_CODE_DISABLE_1M_CONTEXT": "1",
     "SLASH_COMMAND_TOOL_CHAR_BUDGET": "100000"
   },
+  "includeCoAuthoredBy": false,
   "permissions": {
-    "allow": [
-      "Bash(gh pr:*)",
-      "Bash(gh api:*)",
-      "Bash(bun /Users/guillaume.taffin/dev/projects/myboard/plugins/myboard/scripts/sse-listener.ts *)",
-      "mcp__plugin_myboard_myboard",
-      "Bash(awk *)",
-      "Bash(fd *)",
-      "Bash(rg *)"
+    "deny": [
+      "EnterPlanMode",
+      "ExitPlanMode",
+      "DesignSync",
+      "NotebookEdit",
+      "PushNotification",
+      "RemoteTrigger",
+      "ReportFindings",
+      "ScheduleWakeup",
+      "AskUserQuestion",
+      "CronCreate",
+      "CronDelete",
+      "CronList"
     ],
-    "defaultMode": "auto"
+    "defaultMode": "bypassPermissions"
   },
   "model": "opus",
+  "disableClaudeAiConnectors": true,
+  "disableBundledSkills": true,
   "hooks": {
-    "Stop": [
+    "SessionStart": [
       {
+        "matcher": "^(startup|resume|clear|compact|fork)$",
         "hooks": [
           {
             "type": "command",
-            "command": "$HOME/.claude/hooks/cmux-notify.sh"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "$HOME/.claude/hooks/cmux-notify.sh"
+            "command": "bash '/Users/guillaumetaffin/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
           }
         ]
       }
     ]
   },
+  "disableRemoteControl": true,
+  "disableWorkflows": true,
+  "disableArtifact": false,
   "statusLine": {
     "type": "command",
-    "command": "bash /Users/guillaume.taffin/.claude/statusline-command.sh"
+    "command": "bash \"$HOME/.claude/statusline-command.sh\""
   },
   "enabledPlugins": {
-    "frontend-design@claude-plugins-official": true,
-    "skill-creator@claude-plugins-official": true,
-    "ak8-reviews@ak8-marketplace": true
+    "railway@railway-skills": true
   },
   "extraKnownMarketplaces": {
-    "chrome-devtools-plugins": {
+    "railway-skills": {
       "source": {
         "source": "github",
-        "repo": "ChromeDevTools/chrome-devtools-mcp"
-      }
-    },
-    "ak8-marketplace": {
-      "source": {
-        "source": "git",
-        "url": "git@github.com:akur8-tech/ai-transformation.git"
+        "repo": "railwayapp/railway-skills"
       }
     }
   },
+  "outputStyle": "communication-style",
   "effortLevel": "high",
-  "autoCompactWindow": 190000,
+  "modelSettings": {
+    "claude-fable-5-1": {
+      "effortLevel": "medium"
+    }
+  },
+  "autoCompactWindow": 300000,
   "awaySummaryEnabled": false,
   "tui": "fullscreen",
   "autoMemoryEnabled": false,
   "skipDangerousModePermissionPrompt": true,
-  "theme": "dark"
+  "theme": "dark",
+  "crossSessionInbound": "accept",
+  "agentPushNotifEnabled": true
 }

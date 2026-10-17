@@ -9,11 +9,3 @@ Use English only unless explicitely asked or stated.
 Never use em dash (—) or double hyphen (--).
 
 For exploration: use `fd` for file/path discovery and `rg` for content search. Do not use `find`, `grep`, Glob, or Read.
-
-When you create or substantially author a markdown file, show it in cmux (skip if `CMUX_WORKSPACE_ID` unset). Group all docs as tabs in one shared pane, once per file, without stealing focus.
-
-First doc creates the pane, keep its `pane_ref`:
-- `cmux markdown open <abs> --json` (read `pane_ref`)
-
-Later docs drop into that pane:
-- `cmux open <abs> --pane <pane_ref> --no-focus`

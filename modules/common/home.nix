@@ -1,6 +1,9 @@
 { config, pkgs, user, inputs, ... }:
 let
-  repo = "${config.home.homeDirectory}/.dotfiles";
+  # Deliberately not ~/.dotfiles: the dotfiles-linux repo's bootstrap claims
+  # that name too, and whichever ran last wins, silently repointing every
+  # edit-in-place symlink below at the wrong clone.
+  repo = "${config.home.homeDirectory}/.dotfiles-mac";
   inherit (config.lib.file) mkOutOfStoreSymlink;
 in
 {
@@ -29,7 +32,17 @@ in
     gum
     shellcheck
     gawk             # Homebrew: awk (GNU awk)
+    gnugrep          # Homebrew: grep (GNU grep)
     coreutils
+    bat
+    tree
+    watch
+    yq-go            # Homebrew: yq
+    just
+    ast-grep
+    # crypto (GPG commit signing on perso; gpg-suite covers the work Mac)
+    gnupg
+    pinentry_mac
     # build
     cmake
     ninja
@@ -47,13 +60,14 @@ in
     fnm
     bun
     pnpm
+    hermitcli       # cashapp hermit: per-project tool bins (`hermit`)
     # AI coding agents
     pi-coding-agent
   ];
 
   programs.home-manager.enable = true;
 
-  # ---- Phase 4: edit-in-place symlinks back into the dotfiles repo ----
+  # ---- edit-in-place symlinks back into the dotfiles repo ----
   home.file = {
     ".ideavimrc".source = mkOutOfStoreSymlink "${repo}/ideavimrc";
 
@@ -61,8 +75,8 @@ in
     ".claude/CLAUDE.md".source              = mkOutOfStoreSymlink "${repo}/claude/CLAUDE.md";
     ".claude/statusline-command.sh".source  = mkOutOfStoreSymlink "${repo}/claude/statusline-command.sh";
     ".claude/hooks".source                  = mkOutOfStoreSymlink "${repo}/claude/hooks";
-    ".claude/skills/dust".source            = mkOutOfStoreSymlink "${repo}/claude/skills/dust";
     ".claude/skills/setup-worktrunk".source = mkOutOfStoreSymlink "${repo}/claude/skills/setup-worktrunk";
+    ".claude/output-styles".source          = mkOutOfStoreSymlink "${repo}/claude/output-styles";
 
     # pi coding agent: version settings + extensions, keep auth/sessions local
     ".pi/agent/settings.json".source = mkOutOfStoreSymlink "${repo}/pi/settings.json";
@@ -72,35 +86,18 @@ in
     ".config/cmux/bin".source       = mkOutOfStoreSymlink "${repo}/cmux/bin";
     ".config/cmux/git".source       = mkOutOfStoreSymlink "${repo}/cmux/git";
 
-    ".config/git/allowed_signers".source = mkOutOfStoreSymlink "${repo}/git/allowed_signers";
-
     "Screenshots/.keep".text = "";
   };
 
+  # Identity, signing and host-local paths live in hosts/<host>/home.nix.
   programs.git = {
     enable = true;
 
-    signing = {
-      format = "ssh";
-      key = "key::ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL9GnREAGTw8JMmTrGjM975t9eQOtqnUJmvMi5qBk0Ak guillaume.taffin@akur8.com";
-      signByDefault = true;
-    };
-
     settings = {
-      user.name = "Guillaume Taffin";
-      user.email = "guillaume.taffin@akur8.com";
       init.defaultBranch = "main";
       core.autocrlf = "input";
       rerere.enabled = true;
       credential.helper = "osxkeychain";
-      tag.gpgSign = true;
-      gpg.ssh.allowedSignersFile = "${config.home.homeDirectory}/.config/git/allowed_signers";
-      url."git@github.com:".insteadOf = "https://github.com/";
-      safe.directory = [
-        "/Users/guillaume.taffin/dev/projects/work-projections"
-        "/Users/guillaume.taffin/dev/projects/ai-transformation.plain-sandcastle-review-pipeline"
-        "/Users/guillaume.taffin/dev/projects/ai-transformation.triage-workflow"
-      ];
       # diff/merge quality-of-life (formerly from the cmux git-experience include)
       diff.colorMoved = "default";
       merge.conflictstyle = "zdiff3";
