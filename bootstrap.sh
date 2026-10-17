@@ -133,8 +133,6 @@ cat <<'EOF'
 
 ==> Done.
 Manual, out-of-nix-scope steps:
-  - JetBrains Toolbox (installed as a brew cask): sign in, enable Settings Sync.
-  - IntelliJ IDEA: install via Toolbox (~/.ideavimrc is already symlinked).
   - Per-project toolchains: `mise use <tool>@<ver>` inside the project.
 Day-to-day changes: edit configs in the repo, then ./rebuild.sh
 EOF

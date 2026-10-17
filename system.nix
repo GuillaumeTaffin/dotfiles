@@ -130,6 +130,8 @@
       "visual-studio-code"
       "zed"
       "rectangle"
+      "windows-app"   # Microsoft remote desktop client
+      "balenaetcher"
       "raycast"
     ];
   };

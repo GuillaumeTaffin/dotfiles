@@ -36,8 +36,6 @@ in
 
   # ---- edit-in-place symlinks back into the dotfiles repo ----
   home.file = {
-    ".ideavimrc".source = mkOutOfStoreSymlink "${repo}/ideavimrc";
-
     ".claude/settings.json".source          = mkOutOfStoreSymlink "${repo}/claude/settings.json";
     ".claude/CLAUDE.md".source              = mkOutOfStoreSymlink "${repo}/claude/CLAUDE.md";
     ".claude/statusline-command.sh".source  = mkOutOfStoreSymlink "${repo}/claude/statusline-command.sh";
@@ -45,9 +43,8 @@ in
     ".claude/skills/setup-worktrunk".source = mkOutOfStoreSymlink "${repo}/claude/skills/setup-worktrunk";
     ".claude/output-styles".source          = mkOutOfStoreSymlink "${repo}/claude/output-styles";
 
-    # pi coding agent: version settings + extensions, keep auth/sessions local
-    ".pi/agent/settings.json".source = mkOutOfStoreSymlink "${repo}/pi/settings.json";
-    ".pi/agent/extensions".source    = mkOutOfStoreSymlink "${repo}/pi/extensions";
+    # pi coding agent: extensions only, keep settings/auth/sessions local
+    ".pi/agent/extensions".source = mkOutOfStoreSymlink "${repo}/pi/extensions";
 
     # global mise tools: `mise use -g` edits the repo file
     ".config/mise/config.toml".source = mkOutOfStoreSymlink "${repo}/mise/config.toml";
@@ -86,11 +83,6 @@ in
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
 
-    shellAliases = {
-      gw = "./gradlew";
-      gwq = "./gradlew -q";
-    };
-
     # mise shims for non-interactive shells (scripts, agent tool calls), which
     # never run the `mise activate` hook below.
     envExtra = ''
@@ -100,35 +92,15 @@ in
     initContent = ''
       # --- environment ---
       export XDG_CONFIG_HOME="$HOME/.config"
-      export EDITOR=idea
 
       # --- PATH additions ---
-      export PATH="$PATH:$HOME/.pub-cache/bin"
       export PATH="$PATH:$HOME/.local/bin"
-      export PATH="$HOME/.opencode/bin:$PATH"
 
       # mise: global CLIs + per-project toolchains (before wt, which mise installs)
       if command -v mise >/dev/null 2>&1; then eval "$(mise activate zsh)"; fi
 
       # worktrunk shell integration
       if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
-
-      # --- lima / remote helpers (kept verbatim; \$SHELL stays escaped) ---
-      vcc() { ssh -t lima-cc-dev "cd $PWD && exec \$SHELL -ilc claude"; }
-      vci() {
-        if [ "$#" -gt 0 ]; then
-          ssh -t lima-cc-dev "cd $PWD && exec \$SHELL -ilc '$*'"
-        else
-          ssh -t lima-cc-dev "cd $PWD && exec \$SHELL -il"
-        fi
-      }
-      wci() {
-        if [ "$#" -gt 0 ]; then
-          ssh -t lima-cc-dev "cd $PWD && exec \$SHELL -ilc '$*'"
-        else
-          ssh -t -o ControlPath=none -o SetEnv=LC_WCI_PWD="$PWD" lima-cc-dev
-        fi
-      }
     '';
   };
 

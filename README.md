@@ -12,21 +12,17 @@ One host, `perso`: account `guillaumetaffin`, `cloudgt.dev@gmail.com`, GPG commi
 - home-manager (`home.nix`): dotfile symlinks, git identity + signing, zsh, starship, atuin, machine base CLIs (curl, coreutils, gnupg, tmux...).
 - mise global (`mise/config.toml`, symlinked to `~/.config/mise/config.toml`): everyday CLIs (ripgrep, fd, jq, yq, fzf, bat, just, gh, doppler, uv, pi, worktrunk). Update with `mise up`; `mise use -g` edits the repo file.
 - Per project `mise.toml`: languages and toolchains (`mise use <tool>@<ver>` in the project).
-- Native installers: claude (`~/.local/bin`), opencode (`~/.opencode/bin`).
-
-## Intentionally manual (out of nix scope)
-- JetBrains Settings Sync + IntelliJ IDEA (installed via Toolbox; `~/.ideavimrc` is symlinked).
+- Native installer: claude (`~/.local/bin`).
 
 ## Layout
 - `flake.nix`: entry point, `darwinConfigurations.perso`.
 - `system.nix` / `home.nix`: nix-darwin system, home-manager user.
 - `bootstrap.sh` / `rebuild.sh`: first switch / re-apply.
-- `claude/`, `pi/`, `mise/`, `ideavimrc`: config sources symlinked by `home.nix`.
+- `claude/`, `pi/`, `mise/`: config sources symlinked by `home.nix`.
 - `flake.lock`: pinned inputs (committed).
-- `docs/`: design write-ups.
 
 ## Edit in place
-Files under `claude/`, `pi/`, `mise/` and `ideavimrc` are the real configs; home-manager symlinks them into `$HOME`, so edits are live. Run `./rebuild.sh` only when changing package lists, macOS defaults, or the symlink set. The repo may live at any path; the symlinks resolve through the `~/.dotfiles-mac` pointer (created by `bootstrap.sh`), not a hardcoded location. The name is `-mac` on purpose: the `dotfiles-linux` repo's bootstrap claims plain `~/.dotfiles`.
+Files under `claude/`, `pi/` and `mise/` are the real configs; home-manager symlinks them into `$HOME`, so edits are live. Run `./rebuild.sh` only when changing package lists, macOS defaults, or the symlink set. The repo may live at any path; the symlinks resolve through the `~/.dotfiles-mac` pointer (created by `bootstrap.sh`), not a hardcoded location. The name is `-mac` on purpose: the `dotfiles-linux` repo's bootstrap claims plain `~/.dotfiles`.
 
 ## Validate without applying
     darwin-rebuild build --flake ~/dev/projects/dotfiles#perso
